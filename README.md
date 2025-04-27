@@ -26,12 +26,12 @@ This project implements and compares two distinct approaches for computing matri
 
 The following table shows the performance comparison between the two methods:
 
-| n | Pair Count | Unique S | Original Runtime (s) | Poly Runtime (s) | Speedup (%) |
-|---|------------|----------|----------------------|------------------|-------------|
-| 1 | 2          | 2        | 1.46                 | 1.17             | 19.86       |
-| 2 | 15         | 14       | 5.37                 | 2.88             | 46.37       |
-| 3 | 203        | 126      | 76.63                | 19.6             | 74.42       |
-| 4 | 4140       | 1518     | 2584.17              | 310.42           | 87.98       |
+| n | Pair Count | Unique S | Matrix Power Runtime (s) | Poly Runtime (s) | Speedup (%) |
+|---|------------|----------|--------------------------|------------------|-------------|
+| 1 | 2          | 2        | 1.46                     | 1.17             | 19.86       |
+| 2 | 15         | 14       | 5.37                     | 2.88             | 46.37       |
+| 3 | 203        | 126      | 76.63                    | 19.6             | 74.42       |
+| 4 | 4140       | 1518     | 2584.17                  | 310.42           | 87.98       |
 
 ## Key Features
 
