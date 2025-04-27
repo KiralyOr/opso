@@ -16,7 +16,6 @@ This project implements and compares two distinct approaches for computing matri
    - Leverages characteristic polynomial for efficient computation
    - Significantly reduces computational complexity for large matrices
 
-This project implements and compares two methods for computing matrix powers in the context of PRNG (Pseudo-Random Number Generator) analysis:
 
 - **Performance Optimization**: Develop and compare efficient methods for computing matrix powers in large state spaces
 - **Correctness Verification**: Ensure both methods produce identical results while optimizing performance
@@ -73,4 +72,5 @@ The results will be saved in CSV files for comparison.
 - Python 3.x
 - SymPy
 - tqdm
-- concurrent.futures 
+- concurrent.futures
+- gmpy2 (for high-precision arithmetic) 
