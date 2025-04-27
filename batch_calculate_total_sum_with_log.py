@@ -5,6 +5,8 @@ import csv
 from sympy import Matrix, Integer
 from concurrent.futures import ProcessPoolExecutor
 from tqdm import tqdm
+from collections import defaultdict
+from functools import partial
 
 def gen_seq(c, n):
     if n == 0:
@@ -42,25 +44,44 @@ def dfa_transition_matrix(n, S):
 def sympy_perm(n, k):
     return sympy.factorial(n) // sympy.factorial(n - k)
 
-def calculate_single(args):
+def calculate_single_cached(args, V, L):
     try:
-        s, V, L = args
-        s = list(s)
-        A = dfa_transition_matrix(V, s)
+        S_frozen, k, count = args
+        S = list(S_frozen)
+        A = dfa_transition_matrix(V, S)
         path_num = (A ** L)[0, -1]
-        k = max(v for pair in s for v in pair)
-        return path_num * sympy_perm(V, k)
+        return count * path_num * sympy_perm(V, k)
     except Exception as e:
         print(f"[ERROR] Worker failed on input {args}: {e}")
         return Integer(0)
 
-def calculate_total_sum(n, V, L, all_pairs):
-    inputs = [(s, V, L) for s in all_pairs]
+def calculate_total_sum_cached(n, V, L, all_pairs):
+    group_counts = defaultdict(int)
+    k_max_for_group = {}
+
+    for s in all_pairs:
+        S_key = frozenset(s)
+        group_counts[S_key] += 1
+        k = max(v for pair in s for v in pair)
+        k_max_for_group[S_key] = max(k_max_for_group.get(S_key, 0), k)
+
+    inputs = [(S_key, k_max_for_group[S_key], group_counts[S_key]) for S_key in group_counts]
 
     with ProcessPoolExecutor() as executor:
-        results = list(tqdm(executor.map(calculate_single, inputs), total=len(inputs)))
+        worker = partial(calculate_single_cached, V=V, L=L)
+        results = list(tqdm(executor.map(worker, inputs), total=len(inputs)))
 
     return sum(results, Integer(0))
+
+def get_e(n, total_sum, precision=50):
+    V = sympy.Integer(2)**10
+    L = sympy.Integer(2)**21
+
+    factor = sympy.Integer(n * 2)
+    denominator = V**(L + factor)
+    result = 1 - (total_sum / denominator).evalf(precision)
+    e_x = (result * V ** (factor)).evalf(precision)
+    return e_x, result
 
 if __name__ == "__main__":
     V = Integer(2**10)
@@ -69,20 +90,24 @@ if __name__ == "__main__":
 
     with open(log_file, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["n", "pair_count", "runtime_sec", "pkl_file"])
+        writer.writerow(["n", "pair_count", "unique_S", "runtime_sec", "pkl_file", "result", "e_x"])
 
-        for n in range(1,5):
+        for n in range(1, 5):
             print(f"\nCalculating total_sum for n = {n}")
             all_pairs = gen_pairs(n)
             pair_count = len(all_pairs)
 
             start_time = time.time()
-            total_sum = calculate_total_sum(n, V, L, all_pairs)
+            total_sum = calculate_total_sum_cached(n, V, L, all_pairs)
+            e_x, result = get_e(n, total_sum, precision=50)
             duration = round(time.time() - start_time, 2)
-
             filename = f"total_sum_n{n}.pkl"
             with open(filename, "wb") as f:
                 pickle.dump(total_sum, f)
 
+            unique_s = len(set(frozenset(s) for s in all_pairs))
             print(f"Saved {filename} (pairs: {pair_count}, time: {duration}s)")
-            writer.writerow([n, pair_count, duration, filename])
+            print(f"result (1-p): {result.evalf(10)}")
+            print(f"e_x: {e_x.evalf(10)}")
+
+            writer.writerow([n, pair_count, unique_s, duration, filename, result.evalf(50), e_x.evalf(50)])
