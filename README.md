@@ -21,19 +21,38 @@ This project implements and compares two distinct approaches for computing matri
 ### Matrix Power Method (`batch_calculate_total_sum_with_log.py`)
 - `gen_pairs(n)`: O(2ⁿ) - generates all possible pairs
 - `dfa_transition_matrix(n, S)`: O(n²) - creates n×n matrix
-- `calculate_single_cached`: O(n³) - matrix multiplication for A^L
-- Overall Complexity: O(2ⁿ * n³) - dominated by matrix power computation
+- `calculate_single_cached`: O(n³ * log(L)) - matrix multiplication for A^L using repeated squaring
+- Overall Complexity: O(2ⁿ * n³ * log(L)) - dominated by matrix power computation
+  - For L = 2²¹, log(L) = 21
 
 ### Polynomial Method (`batch_calculate_total_sum_with_log_poly.py`)
-- `gen_pairs(n)`: O(2ⁿ) - same as matrix power method
-- `dfa_transition_matrix(n, S)`: O(n²) - same as matrix power method
-- `matrix_modular_exponentiation`: O(n²) - polynomial operations instead of matrix multiplication
-- Overall Complexity: O(2ⁿ * n²) - improved by replacing O(n³) matrix operations with O(n²) polynomial operations
+- `gen_pairs(n)`: O(2ⁿ) - generates all possible pairs
+- `dfa_transition_matrix(n, S)`: O(n²) - creates n×n matrix
+- `matrix_modular_exponentiation`: O(n⁴ * log(L)) - polynomial operations + matrix powers up to n-1
+- Overall Complexity: O(2ⁿ * n⁴ * log(L)) - improved from O(2ⁿ * n³ * log(L)) for large L
+  - For L = 2²¹, log(L) = 21
 
-The polynomial method achieves better asymptotic complexity by:
-- Replacing matrix multiplication (O(n³)) with polynomial arithmetic (O(n²))
+The polynomial method achieves better performance in practice by:
+- Reducing the number of matrix multiplications needed
+- Leveraging polynomial arithmetic for intermediate steps
 - Maintaining the same exponential growth in pair generation (O(2ⁿ))
-- Reducing the overall complexity from O(2ⁿ * n³) to O(2ⁿ * n²)
+- Note: While the asymptotic complexity appears worse (n⁴ vs n³), the constant factors and actual implementation make it faster in practice
+
+### Potential Optimizations
+
+1. **Pair Generation (`gen_pairs`)**:
+   - Current implementation: O(2ⁿ) with high constant factors
+   - Optimized version available using:
+     - Memoization to avoid redundant computations
+     - Better recursive structure
+     - Reduced number of recursive calls
+   - Still O(2ⁿ) worst-case but with improved constant factors
+
+2. **Matrix Operations**:
+   - Consider sparse matrix representations for large n
+   - Use specialized libraries for matrix operations
+   - Parallelize matrix computations where possible
+   - For L = 2²¹, consider using specialized algorithms for large exponents
 
 ## Performance Results
 
