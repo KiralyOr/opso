@@ -18,41 +18,42 @@ This project implements and compares two distinct approaches for computing matri
 
 ## Complexity Analysis
 
-### Matrix Power Method (`batch_calculate_total_sum_with_log.py`)
+### Matrix Power Method (batch_calculate_total_sum_with_log.py)
 - `gen_pairs(n)`: O(2ⁿ) - generates all possible pairs
 - `dfa_transition_matrix(n, S)`: O(n²) - creates n×n matrix
 - `calculate_single_cached`: O(n³ * log(L)) - matrix multiplication for A^L using repeated squaring
-- Overall Complexity: O(2ⁿ * n³ * log(L)) - dominated by matrix power computation
-  - For L = 2²¹, log(L) = 21
+- **Overall Complexity**: O(2ⁿ * n³ * log(L))
+- For L = 2²¹, log(L) = 21
 
-### Polynomial Method (`batch_calculate_total_sum_with_log_poly.py`)
+### Polynomial Method (batch_calculate_total_sum_with_log_poly.py)
 - `gen_pairs(n)`: O(2ⁿ) - generates all possible pairs
 - `dfa_transition_matrix(n, S)`: O(n²) - creates n×n matrix
-- `matrix_modular_exponentiation`: O(n⁴ * log(L)) - polynomial operations + matrix powers up to n-1
-- Overall Complexity: O(2ⁿ * n⁴ * log(L)) - improved from O(2ⁿ * n³ * log(L)) for large L
-  - For L = 2²¹, log(L) = 21
+- `matrix_modular_exponentiation`: O(n³ * log(L)) - uses characteristic polynomial and modular reduction
+  - Characteristic polynomial computation: O(n³)
+  - Polynomial modular reduction: O(n² * log(L))
+  - Final matrix powers: O(n³)
+- **Overall Complexity**: O(2ⁿ * n³ * log(L)) - same asymptotic complexity as matrix power method
 
-The polynomial method achieves better performance in practice by:
-- Reducing the number of matrix multiplications needed
-- Leveraging polynomial arithmetic for intermediate steps
-- Maintaining the same exponential growth in pair generation (O(2ⁿ))
-- Note: While the asymptotic complexity appears worse (n⁴ vs n³), the constant factors and actual implementation make it faster in practice
+### Performance Analysis
+While both methods have the same asymptotic complexity O(2ⁿ * n³ * log(L)), the polynomial method performs significantly better in practice:
+
+1. **Reduced Matrix Operations**: The polynomial method performs fewer full matrix multiplications
+2. **Efficient Modular Reduction**: Uses polynomial arithmetic instead of repeated matrix multiplication
+3. **Memory Efficiency**: Requires less memory for intermediate results
+4. **Parallelization**: Better suited for parallel processing
+
+The empirical results show the polynomial method's advantages:
+- For n=1: 1.17s vs 1.46s (19.86% faster)
+- For n=2: 2.88s vs 5.37s (46.37% faster)
+- For n=3: 19.6s vs 76.63s (74.42% faster)
+- For n=4: 310.42s vs 2584.17s (87.98% faster)
+
+The speedup increases significantly with larger n values, demonstrating better scaling despite having the same asymptotic complexity.
 
 ### Potential Optimizations
-
-1. **Pair Generation (`gen_pairs`)**:
-   - Current implementation: O(2ⁿ) with high constant factors
-   - Optimized version available using:
-     - Memoization to avoid redundant computations
-     - Better recursive structure
-     - Reduced number of recursive calls
-   - Still O(2ⁿ) worst-case but with improved constant factors
-
-2. **Matrix Operations**:
-   - Consider sparse matrix representations for large n
-   - Use specialized libraries for matrix operations
-   - Parallelize matrix computations where possible
-   - For L = 2²¹, consider using specialized algorithms for large exponents
+1. **Pair Generation**: Both methods could benefit from the optimized `gen_pairs` implementation
+2. **Matrix Operations**: Specialized algorithms for sparse matrices and modular arithmetic
+3. **Parallel Processing**: Further parallelization of matrix and polynomial operations
 
 ## Performance Results
 
