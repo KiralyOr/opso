@@ -16,11 +16,24 @@ This project implements and compares two distinct approaches for computing matri
    - Leverages characteristic polynomial for efficient computation
    - Significantly reduces computational complexity for large matrices
 
+## Complexity Analysis
 
-- **Performance Optimization**: Develop and compare efficient methods for computing matrix powers in large state spaces
-- **Correctness Verification**: Ensure both methods produce identical results while optimizing performance
-- **Scalability Analysis**: Study how different methods scale with increasing problem size
-- **Practical Application**: Apply optimized methods to PRNG state transition analysis
+### Matrix Power Method (`batch_calculate_total_sum_with_log.py`)
+- `gen_pairs(n)`: O(2ⁿ) - generates all possible pairs
+- `dfa_transition_matrix(n, S)`: O(n²) - creates n×n matrix
+- `calculate_single_cached`: O(n³) - matrix multiplication for A^L
+- Overall Complexity: O(2ⁿ * n³) - dominated by matrix power computation
+
+### Polynomial Method (`batch_calculate_total_sum_with_log_poly.py`)
+- `gen_pairs(n)`: O(2ⁿ) - same as matrix power method
+- `dfa_transition_matrix(n, S)`: O(n²) - same as matrix power method
+- `matrix_modular_exponentiation`: O(n²) - polynomial operations instead of matrix multiplication
+- Overall Complexity: O(2ⁿ * n²) - improved by replacing O(n³) matrix operations with O(n²) polynomial operations
+
+The polynomial method achieves better asymptotic complexity by:
+- Replacing matrix multiplication (O(n³)) with polynomial arithmetic (O(n²))
+- Maintaining the same exponential growth in pair generation (O(2ⁿ))
+- Reducing the overall complexity from O(2ⁿ * n³) to O(2ⁿ * n²)
 
 ## Performance Results
 
