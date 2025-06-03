@@ -8,24 +8,24 @@ from tqdm import tqdm
 from collections import defaultdict
 from functools import partial
 
-def gen_seq(c, n):
-    if n == 0:
+def gen_seq(c, m):
+    if m == 0:
         return [[]]
     else:
-        arr1 = [[x] + subseq for subseq in gen_seq(c, n - 1) for x in range(1, c)]
-        arr2 = [[c] + subseq for subseq in gen_seq(c + 1, n - 1)]
+        arr1 = [[x] + subseq for subseq in gen_seq(c, m - 1) for x in range(1, c)]
+        arr2 = [[c] + subseq for subseq in gen_seq(c + 1, m - 1)]
         return arr1 + arr2
 
 def to_pairs(s):
     return list(zip(s[::2], s[1::2]))
 
-def gen_pairs(n):
-    return [to_pairs(s) for s in gen_seq(1, 2 * n)]
+def gen_pairs(m):
+    return [to_pairs(s) for s in gen_seq(1, 2 * m)]
 
-def dfa_transition_matrix(n, S):
+def dfa_transition_matrix(m, S):
     U = {u for u, _ in S}
     Q = list(U.union({0, float('inf')}))
-    Sigma = set(range(1, n + 1))
+    Sigma = set(range(1, m + 1))
     state_index = {state: idx for idx, state in enumerate(Q)}
     num_states = len(Q)
     transition_matrix = [[Integer(0)] * num_states for _ in range(num_states)]
@@ -41,8 +41,8 @@ def dfa_transition_matrix(n, S):
 
     return Matrix(transition_matrix)
 
-def sympy_perm(n, k):
-    return sympy.factorial(n) // sympy.factorial(n - k)
+def sympy_perm(num, k):
+    return sympy.factorial(num) // sympy.factorial(num - k)
 
 def calculate_single_cached(args, V, L):
     try:
@@ -55,7 +55,7 @@ def calculate_single_cached(args, V, L):
         print(f"[ERROR] Worker failed on input {args}: {e}")
         return Integer(0)
 
-def calculate_total_sum_cached(n, V, L, all_pairs):
+def calculate_total_sum_cached(m, V, L, all_pairs):
     group_counts = defaultdict(int)
     k_max_for_group = {}
 
@@ -73,11 +73,11 @@ def calculate_total_sum_cached(n, V, L, all_pairs):
 
     return sum(results, Integer(0))
 
-def get_e(n, total_sum, precision=50):
+def get_e(m, total_sum, precision=50):
     V = sympy.Integer(2)**10
     L = sympy.Integer(2)**21
 
-    factor = sympy.Integer(n * 2)
+    factor = sympy.Integer(m * 2)
     denominator = V**(L + factor)
     result = 1 - (total_sum / denominator).evalf(precision)
     e_x = (result * V ** (factor)).evalf(precision)
@@ -90,18 +90,18 @@ if __name__ == "__main__":
 
     with open(log_file, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["n", "pair_count", "unique_S", "runtime_sec", "pkl_file", "result", "e_x"])
+        writer.writerow(["m", "pair_count", "unique_S", "runtime_sec", "pkl_file", "result", "e_x"])
 
-        for n in range(1, 5):
-            print(f"\nCalculating total_sum for n = {n}")
-            all_pairs = gen_pairs(n)
+        for m in range(1, 5):
+            print(f"\nCalculating total_sum for m = {m}")
+            all_pairs = gen_pairs(m)
             pair_count = len(all_pairs)
 
             start_time = time.time()
-            total_sum = calculate_total_sum_cached(n, V, L, all_pairs)
-            e_x, result = get_e(n, total_sum, precision=50)
+            total_sum = calculate_total_sum_cached(m, V, L, all_pairs)
+            e_x, result = get_e(m, total_sum, precision=50)
             duration = round(time.time() - start_time, 2)
-            filename = f"total_sum_n{n}.pkl"
+            filename = f"total_sum_m{m}.pkl"
             with open(filename, "wb") as f:
                 pickle.dump(total_sum, f)
 
@@ -110,4 +110,4 @@ if __name__ == "__main__":
             print(f"result (1-p): {result.evalf(10)}")
             print(f"e_x: {e_x.evalf(10)}")
 
-            writer.writerow([n, pair_count, unique_s, duration, filename, result.evalf(50), e_x.evalf(50)])
+            writer.writerow([m, pair_count, unique_s, duration, filename, result.evalf(50), e_x.evalf(50)])
