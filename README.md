@@ -48,7 +48,7 @@ This project implements and compares two distinct approaches for computing matri
    - Analytical approach using rational generating functions
    - Derives closed-form generating functions $A_j(z)$ for each equivalence class
    - Computes coefficients using symbolic differentiation and root finding
-   - Extremely efficient: Calculates Expectation in ~0.0014s (vs seconds/minutes)
+   - Extremely efficient: Calculates Expectation in ~0.18s
    - Handles the same problem scale ($V=2^{10}, L=2^{21}$) with superior performance
 
 ### Performance Analysis
@@ -357,7 +357,8 @@ The following table shows the performance comparison between the two methods:
 | 3 | 203        | 126      | 76.63                    | 19.6             | 74.42       |
 | 3 | 203        | 126      | 76.63                    | 19.6             | 74.42       |
 | 4 | 4140       | 1518     | 2584.17                  | 310.42           | 87.98       |
-| **Any** | - | - | - | **0.0014** (Gen Func) | **99.99+** |
+| 4 | 4140       | 1518     | 2584.17                  | 310.42           | 87.98       |
+| **Gen Func** | - | - | - | **0.18s (E[x]) + 1.60s (Mom2)** | **99.9%+** |
 
 ## Key Features
 
@@ -371,7 +372,10 @@ The following table shows the performance comparison between the two methods:
 The project consists of two main implementations:
 1. `batch_calculate_total_sum_with_log.py`: Original implementation using direct matrix exponentiation
 2. `batch_calculate_total_sum_with_log_poly.py`: Optimized implementation using polynomial-based modular exponentiation
-3. `opso_generating_functions.ipynb`: New analytical implementation using symbolic generating functions (Jupyter Notebook)
+3. `generating_function_implementation/`: Analytical implementation using symbolic generating functions
+    - `calculate_first_moment.py`: Calculates Expectation
+    - `calculate_second_moment.py`: Calculates Second Moment
+    - `analysis.ipynb`: Statistical analysis
 
 ## Results
 
@@ -439,9 +443,10 @@ python batch_calculate_total_sum_with_log_poly.py
   ```
 - Ensure you're using a 64-bit Python installation for better performance
 
-## Results
 
-Both implementations produce identical results, but the polynomial-based method shows significant performance improvements:
-- Up to 88% faster for larger values of m
-- Better scaling with increasing problem size
-- Identical numerical results to ensure correctness 
+### Generating Functions Results (V=2^10, L=2^21)
+- **Expectation (E_x)**: 141909.3299550069...
+- **Variance (Var_x)**: 84368.32646163049...
+- **Std Dev**: 290.46226340375...
+- **Execution Time**: ~1.78s total (vs minutes/hours for matrix methods)
+ 
