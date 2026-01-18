@@ -1,4 +1,5 @@
 gmpy2==2.2.1
 sympy==1.13.3
 tqdm==4.67.1
+jupyter
 

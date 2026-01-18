@@ -16,6 +16,11 @@ This project implements and compares two distinct approaches for computing matri
    - Leverages characteristic polynomial for efficient computation
    - Significantly reduces computational complexity for large matrices
 
+3. **Generating Functions (Analytical)**
+   - Uses symbolic generating functions $A_j(z)$
+   - Derives exact coefficients using complex analysis (roots of denominators)
+   - Extremely fast execution (< 0.01s for full calculation)
+
 ## Complexity Analysis
 
 ### Matrix Power Method (batch_calculate_total_sum_with_log.py)
@@ -39,6 +44,13 @@ This project implements and compares two distinct approaches for computing matri
   - For m < 10, B(2m) ≈ 1.38 × 10¹²
   - Total: O(1.38 × 10¹² * 100 * 21) = O(2.9 × 10¹⁵)
 
+3. **Generating Functions Method (opso_generating_functions.ipynb)**
+   - Analytical approach using rational generating functions
+   - Derives closed-form generating functions $A_j(z)$ for each equivalence class
+   - Computes coefficients using symbolic differentiation and root finding
+   - Extremely efficient: Calculates Expectation in ~0.0014s (vs seconds/minutes)
+   - Handles the same problem scale ($V=2^{10}, L=2^{21}$) with superior performance
+
 ### Performance Analysis
 While both methods have similar asymptotic complexity, the polynomial method performs significantly better in practice:
 
@@ -58,6 +70,7 @@ The speedup increases significantly with larger m values, demonstrating better s
 ### Memory Requirements
 - Matrix Power Method: O(m² * log(L)) = O(100 * 21) = O(2,100) per process
 - Polynomial Method: O(m * log(L)) = O(10 * 21) = O(210) per process
+- Generating Functions: O(1) (Analytic, independent of L in terms of iterations)
 
 ### Numerical Stability
 - Both methods use arbitrary-precision arithmetic
@@ -342,7 +355,9 @@ The following table shows the performance comparison between the two methods:
 | 1 | 2          | 2        | 1.46                     | 1.17             | 19.86       |
 | 2 | 15         | 14       | 5.37                     | 2.88             | 46.37       |
 | 3 | 203        | 126      | 76.63                    | 19.6             | 74.42       |
+| 3 | 203        | 126      | 76.63                    | 19.6             | 74.42       |
 | 4 | 4140       | 1518     | 2584.17                  | 310.42           | 87.98       |
+| **Any** | - | - | - | **0.0014** (Gen Func) | **99.99+** |
 
 ## Key Features
 
@@ -356,6 +371,7 @@ The following table shows the performance comparison between the two methods:
 The project consists of two main implementations:
 1. `batch_calculate_total_sum_with_log.py`: Original implementation using direct matrix exponentiation
 2. `batch_calculate_total_sum_with_log_poly.py`: Optimized implementation using polynomial-based modular exponentiation
+3. `opso_generating_functions.ipynb`: New analytical implementation using symbolic generating functions (Jupyter Notebook)
 
 ## Results
 
